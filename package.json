@@ -1,0 +1,15 @@
+{
+  "name": "cordova plugin android edge to edge",
+  "version": "1.0.0",
+  "description": "",
+  "cordova": {
+    "id": "cordova-plugin-android-edge-to-edge",
+    "platforms": [
+      "android"
+    ]
+  },
+  "keywords": [
+    "ecosystem:cordova"
+  ],
+  "author": "Miguel Rosa"
+}
