@@ -6,6 +6,6 @@ android {
 }
 
 dependencies {
-    def activity_version = "1.6.0"
+    def activity_version = "1.8.0"
     implementation "androidx.activity:activity:$activity_version"
 }
