@@ -20,6 +20,6 @@
         </config-file>
 
         <source-file src="src/android/AndroidEdgeToEdge.java" target-dir="src/com/example" />
-        <framework src="build-extras.gradle" custom="true" type="gradleReference" />
+        <framework src="src/android/build-extras.gradle" custom="true" type="gradleReference" />
     </platform>
 </plugin>
