@@ -1,13 +1,19 @@
 package com.example;
 
 import org.apache.cordova.CordovaPlugin;
-import android.view.View;
-import android.os.Build;
+import org.apache.cordova.CallbackContext;
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import android.os.Bundle;
+import androidx.core.view.WindowCompat;
+import androidx.activity.EdgeToEdge;
 
 public class AndroidEdgeToEdge extends CordovaPlugin {
 
     @Override
-    protected void pluginInitialize() {
+    public void initialize(CordovaInterface cordova, CordovaWebView webView) {
+        super.initialize(cordova, webView);
         enableEdgeToEdge();
     }
 
@@ -15,14 +21,7 @@ public class AndroidEdgeToEdge extends CordovaPlugin {
         cordova.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    cordova.getActivity().getWindow().setDecorFitsSystemWindows(false);
-                } else {
-                    int flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
-                    cordova.getActivity().getWindow().getDecorView().setSystemUiVisibility(flags);
-                }
+                EdgeToEdge.enable(cordova.getActivity());
             }
         });
     }
