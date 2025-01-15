@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+        id="cordova-plugin-android-edge-to-edge"
+        version="1.0.0">
+    <name>Android Edge to Edge</name>
+    <description>Cordova plugin that enables Edge to Edge mode in Android applications, allowing content to extend to the edges of the device screen.</description>
+    <license>MIT</license>
+    <keywords>cordova,android,edge-to-edge</keywords>
+    
+    <engines>
+        <engine name="cordova-android" version=">=9.0.0" />
+    </engines>
+
+    <platform name="android">
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="AndroidEdgeToEdge">
+                <param name="android-package" value="com.example.AndroidEdgeToEdge" />
+                <param name="onload" value="true" />
+            </feature>
+        </config-file>
+
+        <source-file src="src/android/AndroidEdgeToEdge.java" target-dir="src/com/example" />
+        <framework src="build-extras.gradle" custom="true" type="gradleReference" />
+    </platform>
+</plugin>
