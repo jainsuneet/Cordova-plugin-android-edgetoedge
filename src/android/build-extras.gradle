@@ -8,4 +8,5 @@ android {
 dependencies {
     def activity_version = "1.8.0"
     implementation "androidx.activity:activity:$activity_version"
+    implementation 'org.apache.cordova:framework:10.0.0'
 }
