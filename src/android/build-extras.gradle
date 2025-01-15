@@ -1,12 +1,11 @@
 android {
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 30
+        targetSdkVersion 33
     }
 }
 
 dependencies {
     def activity_version = "1.8.0"
     implementation "androidx.activity:activity:$activity_version"
-    implementation 'org.apache.cordova:framework:10.0.0'
 }
