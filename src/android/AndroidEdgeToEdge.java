@@ -6,6 +6,9 @@ import org.apache.cordova.CordovaWebView;
 
 import android.os.Build;
 import android.view.View;
+import android.view.Window;
+
+import java.lang.reflect.Method;
 
 public class AndroidEdgeToEdge extends CordovaPlugin {
 
@@ -19,16 +22,28 @@ public class AndroidEdgeToEdge extends CordovaPlugin {
         cordova.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (Build.VERSION.SDK_INT >= 30) { // replaced Build.VERSION_CODES.R with 30
-                    cordova.getActivity().getWindow().setDecorFitsSystemWindows(false);
+                Window window = cordova.getActivity().getWindow();
+
+                if (Build.VERSION.SDK_INT >= 30) {
+                    try {
+                        Method m = window.getClass().getMethod("setDecorFitsSystemWindows", boolean.class);
+                        m.invoke(window, false);
+                    } catch (Exception e) {
+                        // fallback if method not found or invocation fails
+                        setLegacyFlags(window);
+                    }
                 } else {
-                    View decorView = cordova.getActivity().getWindow().getDecorView();
-                    decorView.setSystemUiVisibility(
-                        View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    );
+                    setLegacyFlags(window);
                 }
+            }
+
+            private void setLegacyFlags(Window window) {
+                View decorView = window.getDecorView();
+                decorView.setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                );
             }
         });
     }
