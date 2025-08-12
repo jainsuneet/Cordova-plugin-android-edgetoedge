@@ -19,11 +19,9 @@ public class AndroidEdgeToEdge extends CordovaPlugin {
         cordova.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    // Android 11+ (API 30+)
+                if (Build.VERSION.SDK_INT >= 30) { // replaced Build.VERSION_CODES.R with 30
                     cordova.getActivity().getWindow().setDecorFitsSystemWindows(false);
                 } else {
-                    // Android 10 and below
                     View decorView = cordova.getActivity().getWindow().getDecorView();
                     decorView.setSystemUiVisibility(
                         View.SYSTEM_UI_FLAG_LAYOUT_STABLE
