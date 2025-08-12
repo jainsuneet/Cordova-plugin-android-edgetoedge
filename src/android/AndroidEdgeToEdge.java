@@ -1,72 +1,52 @@
 package com.example;
 
-import org.apache.cordova.CordovaPlugin;
-import org.apache.cordova.CordovaInterface;
-import org.apache.cordova.CordovaWebView;
-
 import android.os.Build;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.Window;
+import android.widget.FrameLayout;
 
-import java.lang.reflect.Method;
+import org.apache.cordova.CordovaPlugin;
+import org.apache.cordova.CallbackContext;
 
 public class AndroidEdgeToEdge extends CordovaPlugin {
 
     @Override
-    public void initialize(CordovaInterface cordova, CordovaWebView webView) {
-        super.initialize(cordova, webView);
-        enableEdgeToEdge();
+    public boolean execute(String action, org.json.JSONArray args, CallbackContext callbackContext) {
+        if ("enable".equals(action)) {
+            cordova.getActivity().runOnUiThread(() -> enableEdgeToEdge());
+            callbackContext.success();
+            return true;
+        }
+        return false;
     }
 
     private void enableEdgeToEdge() {
-        cordova.getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Window window = cordova.getActivity().getWindow();
+        Window window = cordova.getActivity().getWindow();
+        View decorView = window.getDecorView();
 
-                // Use literal 30 instead of Build.VERSION_CODES.R
-                if (Build.VERSION.SDK_INT >= 30) {
-                    try {
-                        // Reflection call to setDecorFitsSystemWindows(false)
-                        Method setDecorFitsMethod = window.getClass()
-                                .getMethod("setDecorFitsSystemWindows", boolean.class);
-                        setDecorFitsMethod.invoke(window, false);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            // Enable layout under system bars
+            decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+            );
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
 
-                        // Reflection call to getInsetsController()
-                        Method getInsetsControllerMethod = window.getClass()
-                                .getMethod("getInsetsController");
-                        Object insetsController = getInsetsControllerMethod.invoke(window);
+            // Apply padding so content isn't hidden
+            decorView.setOnApplyWindowInsetsListener((v, insets) -> {
+                int topInset = insets.getSystemWindowInsetTop();
+                int bottomInset = insets.getSystemWindowInsetBottom();
 
-                        if (insetsController != null) {
-                            Class<?> insetsControllerClass = insetsController.getClass();
-
-                            // APPEARANCE_LIGHT_STATUS_BARS constant value is 1
-                            int APPEARANCE_LIGHT_STATUS_BARS = 1;
-
-                            Method setSystemBarsAppearanceMethod = insetsControllerClass
-                                    .getMethod("setSystemBarsAppearance", int.class, int.class);
-                            setSystemBarsAppearanceMethod.invoke(
-                                    insetsController,
-                                    APPEARANCE_LIGHT_STATUS_BARS,
-                                    APPEARANCE_LIGHT_STATUS_BARS);
-                        }
-                    } catch (Exception e) {
-                        // fallback to legacy flags on failure
-                        setLegacyFlags(window);
-                    }
-                } else {
-                    setLegacyFlags(window);
+                View webView = ((ViewGroup) v).getChildAt(0);
+                if (webView != null) {
+                    webView.setPadding(0, topInset, 0, bottomInset);
                 }
-            }
-
-            private void setLegacyFlags(Window window) {
-                View decorView = window.getDecorView();
-                decorView.setSystemUiVisibility(
-                        View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                );
-            }
-        });
+                return insets.consumeSystemWindowInsets();
+            });
+        }
     }
 }
