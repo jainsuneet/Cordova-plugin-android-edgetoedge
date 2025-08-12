@@ -19,7 +19,7 @@
             </feature>
         </config-file>
 
-        <source-file src="src/android/AndroidEdgeToEdge.java" target-dir="src/com/example" />
+        <source-file src="src/android/AndroidEdgeToEdge.java" target-dir="com/example" />
         <framework src="src/android/build-extras.gradle" custom="true" type="gradleReference" />
     </platform>
 </plugin>
