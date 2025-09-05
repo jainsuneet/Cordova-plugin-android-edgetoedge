@@ -10,6 +10,8 @@ import android.view.WindowInsets;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CallbackContext;
 
+import java.lang.reflect.Method;
+
 public class AndroidEdgeToEdge extends CordovaPlugin {
 
     @Override
@@ -40,18 +42,32 @@ public class AndroidEdgeToEdge extends CordovaPlugin {
             decorView.setOnApplyWindowInsetsListener((v, insets) -> {
                 View webView = ((ViewGroup) v).getChildAt(0);
                 if (webView != null) {
-                    if (Build.VERSION.SDK_INT >= 35) {
-                        // Android 15 and above: use new API
-                        android.graphics.Insets systemBars = insets.getInsets(WindowInsets.Type.systemBars());
-                        webView.setPadding(0, systemBars.top, 0, systemBars.bottom);
-                        return insets; // do not consume
-                    } else {
-                        // Android 14 and below: legacy API
-                        int topInset = insets.getSystemWindowInsetTop();
-                        int bottomInset = insets.getSystemWindowInsetBottom();
-                        webView.setPadding(0, topInset, 0, bottomInset);
-                        return insets.consumeSystemWindowInsets();
+                    if (Build.VERSION.SDK_INT >= 30) {
+                        try {
+                            // Reflectively call: Insets sysBars = insets.getInsets(WindowInsets.Type.systemBars())
+                            Class<?> typeClass = Class.forName("android.view.WindowInsets$Type");
+                            Method sysBarsMethod = typeClass.getMethod("systemBars");
+                            int sysBarsMask = (int) sysBarsMethod.invoke(null);
+
+                            Method getInsetsMethod = WindowInsets.class.getMethod("getInsets", int.class);
+                            Object insetsObj = getInsetsMethod.invoke(insets, sysBarsMask);
+
+                            // Extract top/bottom from android.graphics.Insets
+                            int top = (int) insetsObj.getClass().getField("top").get(insetsObj);
+                            int bottom = (int) insetsObj.getClass().getField("bottom").get(insetsObj);
+
+                            webView.setPadding(0, top, 0, bottom);
+                            return insets;
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
+
+                    // Fallback: legacy API (works up to Android 10 / API 29)
+                    int topInset = insets.getSystemWindowInsetTop();
+                    int bottomInset = insets.getSystemWindowInsetBottom();
+                    webView.setPadding(0, topInset, 0, bottomInset);
+                    return insets.consumeSystemWindowInsets();
                 }
                 return insets;
             });
