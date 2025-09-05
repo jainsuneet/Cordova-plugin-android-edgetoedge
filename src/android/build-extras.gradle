@@ -1,11 +1,7 @@
 android {
-    compileSdkVersion 29 // or 28 if you want; but 29+ is better for more APIs
+    compileSdkVersion 34
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 29
+        targetSdkVersion 34
     }
-}
-
-dependencies {
-    // No androidx dependencies!
 }
