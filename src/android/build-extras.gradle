@@ -1,7 +1,7 @@
 android {
-    compileSdkVersion 34
+    compileSdkVersion 35  // must be >= 30 for WindowInsets.Type + setDecorFitsSystemWindows
     defaultConfig {
-        minSdkVersion 21
-        targetSdkVersion 34
+        minSdkVersion 23   // from your config.xml
+        targetSdkVersion 35
     }
 }

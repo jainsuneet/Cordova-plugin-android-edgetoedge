@@ -1,5 +1,3 @@
-package com.example;
-
 import android.os.Build;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,13 +6,10 @@ import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.graphics.Insets;
 
-import org.apache.cordova.CordovaPlugin;
-import org.apache.cordova.CallbackContext;
-
-public class AndroidEdgeToEdge extends CordovaPlugin {
-
+public class AndroidEdgeToEdge extends org.apache.cordova.CordovaPlugin {
     @Override
-    public boolean execute(String action, org.json.JSONArray args, CallbackContext callbackContext) {
+    public boolean execute(String action, org.json.JSONArray args,
+                           org.apache.cordova.CallbackContext callbackContext) {
         if ("enable".equals(action)) {
             cordova.getActivity().runOnUiThread(this::enableEdgeToEdge);
             callbackContext.success();
@@ -28,7 +23,6 @@ public class AndroidEdgeToEdge extends CordovaPlugin {
         final View decorView = window.getDecorView();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            // Layout under system bars
             decorView.setSystemUiVisibility(
                     View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                             | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
@@ -38,12 +32,12 @@ public class AndroidEdgeToEdge extends CordovaPlugin {
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
 
             if (Build.VERSION.SDK_INT >= 30) {
-                // Modern API (Android 11+ → Android 15 included)
+                // Android 11+ → Android 15
                 window.setDecorFitsSystemWindows(false);
 
-                final View contentRoot = decorView.findViewById(android.R.id.content);
+                View contentRoot = decorView.findViewById(android.R.id.content);
                 if (contentRoot != null) {
-                    final View target = (contentRoot instanceof ViewGroup && ((ViewGroup) contentRoot).getChildCount() > 0)
+                    View target = (contentRoot instanceof ViewGroup && ((ViewGroup) contentRoot).getChildCount() > 0)
                             ? ((ViewGroup) contentRoot).getChildAt(0)
                             : contentRoot;
 
@@ -53,14 +47,14 @@ public class AndroidEdgeToEdge extends CordovaPlugin {
                         contentRoot.setOnApplyWindowInsetsListener((v, insets) -> {
                             Insets systemBars = insets.getInsets(WindowInsets.Type.systemBars());
                             target.setPadding(0, systemBars.top, 0, systemBars.bottom);
-                            return insets; // don’t consume
+                            return insets;
                         });
 
                         contentRoot.requestApplyInsets();
                     }
                 }
             } else {
-                // Legacy API (Android 4.4 – 10)
+                // Android 4.4 – 10
                 decorView.setOnApplyWindowInsetsListener((v, insets) -> {
                     ViewGroup vg = (v instanceof ViewGroup) ? (ViewGroup) v : null;
                     View webView = (vg != null && vg.getChildCount() > 0) ? vg.getChildAt(0) : null;
