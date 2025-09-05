@@ -5,7 +5,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.Window;
-import android.widget.FrameLayout;
+import android.view.WindowInsets;
 
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CallbackContext;
@@ -38,14 +38,22 @@ public class AndroidEdgeToEdge extends CordovaPlugin {
 
             // Apply padding so content isn't hidden
             decorView.setOnApplyWindowInsetsListener((v, insets) -> {
-                int topInset = insets.getSystemWindowInsetTop();
-                int bottomInset = insets.getSystemWindowInsetBottom();
-
                 View webView = ((ViewGroup) v).getChildAt(0);
                 if (webView != null) {
-                    webView.setPadding(0, topInset, 0, bottomInset);
+                    if (Build.VERSION.SDK_INT >= 35) {
+                        // Android 15 and above: use new API
+                        android.graphics.Insets systemBars = insets.getInsets(WindowInsets.Type.systemBars());
+                        webView.setPadding(0, systemBars.top, 0, systemBars.bottom);
+                        return insets; // do not consume
+                    } else {
+                        // Android 14 and below: legacy API
+                        int topInset = insets.getSystemWindowInsetTop();
+                        int bottomInset = insets.getSystemWindowInsetBottom();
+                        webView.setPadding(0, topInset, 0, bottomInset);
+                        return insets.consumeSystemWindowInsets();
+                    }
                 }
-                return insets.consumeSystemWindowInsets();
+                return insets;
             });
         }
     }
